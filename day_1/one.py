@@ -24,8 +24,9 @@
 # Of course, your expense report is much larger. Find the two entries that sum to 2020; what do you get if you multiply them together?
 
 entries = [int(line) for line in open('input.txt').readlines()]
-for i in entries:
-    for j in entries:
-        if i + j == 2020:
-            print(j * i)
-            exit()
+diff_values = {2020 - e: e for e in entries}
+keys = set(diff_values)
+for e in entries:
+    if e in keys:
+        print(e * diff_values[e])
+        exit()

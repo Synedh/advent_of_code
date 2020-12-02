@@ -3,10 +3,15 @@
 # Using the above example again, the three entries that sum to 2020 are 979, 366, and 675. Multiplying them together produces the answer, 241861950.
 
 # In your expense report, what is the product of the three entries that sum to 2020?
-entries = [int(line) for line in open('input.txt').readlines()]
-for i in entries:
-    for j in entries:
-        for k in entries:
-            if i + j + k == 2020:
-                print(j * i * k)
-                exit()
+entries = [int(line) for line in open('input.txt').readlines()].sort()
+for i, e in enumerate(entries):
+    left = i + 1
+    right = len(entries) - 1
+    while left < right:
+        if e + entries[left] + entries[right] == 2020:
+            print(e * entries[left] * entries[right])
+            exit()
+        elif e + entries[left] + entries[right] < 2020:
+            left += 1
+        else:
+            right -= 1
