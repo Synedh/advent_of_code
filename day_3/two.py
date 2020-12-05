@@ -14,4 +14,4 @@
 
 # Your puzzle answer was 3521829480.
 
-print(eval('*'.join(str(sum([l[i * x % len(l)] == '#' for i, l in enumerate(open('input').read().splitlines()[::y])])) for x, y in zip([1, 3, 5, 7, 1], [1, 1, 1, 1, 2]))))
+print(eval('*'.join(str(sum([l[i * x % len(l)] == '#' for i, l in enumerate(open('input').read().splitlines()[::y])])) for x, y in [[1, 1], [3, 1], [5, 1], [7, 1], [1, 2]])))
