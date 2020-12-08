@@ -1,7 +1,8 @@
 import re
 
+
 def parse_rules(color_rules):
-    if 'shiny gold' in ''.join([rule[1] for rule in color_rules]):
+    if 'shiny gold' in ''.join([color for _, color in color_rules]):
         return True
     return any(parse_rules(rules[color]) for _, color in color_rules)
 
