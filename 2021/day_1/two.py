@@ -1,2 +1,2 @@
-l = [int(i) for i in open('input').read().splitlines()]
-print(sum(sum(l[i:i + 3]) < sum(l[i + 1:i + 4]) for i, _ in enumerate(l[:-3])))
+l = [*map(int, open('input'))]
+print(sum(a < b for a, b in zip(l, l[3:])))

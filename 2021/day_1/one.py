@@ -1,2 +1,2 @@
-l = [int(i) for i in open('input').read().splitlines()]
-print(sum(item > l[i] for i, item in enumerate(l[1:])))
+l = [*map(int, open('input'))]
+print(sum(a < b for a, b in zip(l, l[1:])))
