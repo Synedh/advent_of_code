@@ -1,5 +1,5 @@
 x, y = 0, 0
-for line in open('input').readlines():
+for line in open('input'):
     line = line.split()
     if line[0] == 'forward':
         x += int(line[1])
