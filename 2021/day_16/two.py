@@ -47,5 +47,5 @@ def parse_packet(binary):
         return parse_operation(binary, operations[id])
 
 input = open('input').read().splitlines()[0]
-bin_input = ''.join(format(int(char, base=16), '#06b')[2:] for char in input)
+bin_input = ''.join(format(int(char, base=16), '04b') for char in input)
 print(parse_packet(bin_input)[-1])
