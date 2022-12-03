@@ -1,75 +1,93 @@
 import re
 from math import ceil
 
-input = '[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]\n[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]'
-
 def split(fullnum, i):
-    num = fullnum[i]
-    splitted_num = [
-        {'value': num['value'] // 2, 'depth': num['depth'] + 1},
-        {'value': ceil(num['value'] / 2), 'depth': num['depth'] + 1}
-    ]
-    print('split', fullnum[:i] + splitted_num + fullnum[i + 1:])
+    num = int(fullnum[i])
+    splitted_num = [ '[', str(num // 2), str(ceil(num / 2)), ']']
     return fullnum[:i] + splitted_num + fullnum[i + 1:]
 
 def explode(fullnum, i):
-    if i >= 1:
-        fullnum[i - 1]['value'] += fullnum[i]['value']
-    if i + 2 < len(fullnum):
-        fullnum[i + 2]['value'] += fullnum[i + 1]['value']
-    fullnum[i]['value'] = 0
-    fullnum[i]['depth'] -= 1
-    print('explode', fullnum[:i + 1] + fullnum[i + 2:])
-    return fullnum[:i + 1] + fullnum[i + 2:]
+    def nearest_int(i, order=1):
+        while 0 < i < len(fullnum) - 1:
+            i += order
+            if fullnum[i].isdigit():
+                return i
+        return None
+    
+    nearest_left = nearest_int(i, -1)
+    nearest_right = nearest_int(i + 1)
+    if nearest_left:
+        fullnum[nearest_left] = str(int(fullnum[nearest_left]) + int(fullnum[i]))
+    if nearest_right:
+        fullnum[nearest_right] = str(int(fullnum[nearest_right]) + int(fullnum[i + 1]))
+    return fullnum[:i - 1] + ['0'] + fullnum[i + 3:]
 
-def add(a, b):
-    num = a + b
-    for value in num:
-        value['depth'] += 1
-    return check(num)
+def reduce_step(sfnum):
+    depth = 0
+    for pos in range(len(sfnum)):
+        if sfnum[pos] == "[": depth += 1
+        elif sfnum[pos] == "]": depth -= 1
+        elif depth == 5: return explode(sfnum, pos)
+
+    for pos in range(len(sfnum)):
+        if sfnum[pos].isdigit() and int(sfnum[pos]) >= 10: return split(sfnum, pos)
+    raise EOFError
+
+def reduce_fully(sfnum):
+    while True:
+        try: sfnum = reduce_step(sfnum)
+        except EOFError: break
+    return sfnum
 
 def check(fullnum):
     i = 0
-    length = len(fullnum)
+    depth = 0
     while i < len(fullnum):
-        if fullnum[i]['depth'] > 4:
-            fullnum = explode(fullnum, i)
-            i = 0
-            length = len(fullnum)
-        elif fullnum[i]['value'] > 9:
-            fullnum = split(fullnum, i)
-            i = 0
-            length = len(fullnum)
-        else:
+        if fullnum[i] == '[':
+            depth += 1
             i += 1
+        elif fullnum[i] == ']':
+            depth -= 1
+            i += 1
+        else:
+            if depth > 4:
+                fullnum = explode(fullnum, i)
+                i = 0
+                depth = 0
+            elif int(fullnum[i]) > 9:
+                fullnum = split(fullnum, i)
+                i = 0
+                depth = 0
+            else:
+                i += 1
     return fullnum
 
+def add(a, b):
+    return reduce_fully(['['] + a + b + [']'])
+
 def reformat(fullnum):
-    value = ''
-    depth = 0
-    pair = False
-    for num in fullnum:
-        while depth < num[depth]:
-            value += '['
-        
+    i = 0
+    while i + 1 < len(fullnum):
+        if (fullnum[i].isdigit() or fullnum[i] == ']') and fullnum[i + 1] != ']':
+            fullnum = fullnum[:i + 1] + [','] + fullnum[i + 1:]
+        i += 1
+    return eval(''.join(fullnum))
     
 def format_num(value):
-    depth = 0
-    values = []
-    for char in value:
-        if char == '[':
-            depth += 1
-        elif char == ']':
-            depth -= 1
-        elif char == ',':
-            pass
-        else:
-            values.append({'value': int(char), 'depth': depth})
-    return values
+    return re.findall('\d|\[|\]', value)
 
-# value = format_num(input.splitlines()[0])
-# for string in input.splitlines()[1:]:
-#     value = add(value, format_num(string))
-# print(value)
 
-print(add(format_num('[[[[4,3],4],4],[7,[[8,4],9]]]'), format_num('[1,1]')))
+def magnitude(list_num: int | list):
+    if isinstance(list_num, int):
+        return list_num
+    return 3 * magnitude(list_num[0]) + 2 * magnitude(list_num[1])
+
+
+
+result, *values = [format_num(line) for line in open('input').read().splitlines()]
+for value in values:
+    result = add(result, value)
+print(magnitude(reformat(result)))
+
+values = [format_num(line) for line in open('input').read().splitlines()]
+print(max(magnitude(reformat(add(values[i], values[j]))) for i in range(len(values)) for j in range(len(values)) if i != j))
